@@ -1,16 +1,16 @@
+from steganography.steganography import Steganography #for sending secret messages
+from datetime import datetime
 import sys
 from time import sleep
-from spy_details import spy
-STATUS_MESSAGES = []
+from spy_details import spy,friends,ChatMessage,Spy
 
-
-
-friends = []
+STATUS_MESSAGES = [] #this is a list which holds the statuses
 
 
 
 welcome = "W E L C O M E  T O  S P Y C H A T\n\n"
-for l in welcome:
+
+for l in welcome:  #Just to make the output look bit interactive. Each letter appears with a delay
  sys.stdout.write(l)
  sys.stdout.flush()
  sleep(0)
@@ -18,7 +18,7 @@ for l in welcome:
 #Fuction to update or add new status
 def add_status(current_status_message):
 
-
+    #updated status message is set to none initially
     updated_status_message = None
 
 
@@ -27,9 +27,11 @@ def add_status(current_status_message):
     else:
         print  "You do not have any current status\n"
 
+    #this loop in case user enters wrong credentials
     for e in range(1,3):
         default = raw_input("Do you want to select from the older status (y/n)? ")
 
+        #upper funtion will make the input uppercase
         if default.upper() == "N":
             new_status_message = raw_input("Please Enter your new status")
 
@@ -80,44 +82,40 @@ def add_status(current_status_message):
 
 
 def add_friend():
-    new_friend = {
-        'name': '',
-        'salutation': '',
-        'age': 0,
-        'rating': 0.0
-    }
+    new_friend = Spy('','',0,0.0)
 
-    new_friend['name'] = raw_input("Please add your friend's name : ")
+
+    new_friend.name = raw_input("Please add your friend's name : ")
     for e in range(1,3):
-        if len(new_friend['name']) > 0:
-            new_friend['salutation'] = raw_input("\nAre they Mr. or Ms.? : ")
+        if len(new_friend.name) > 0:
+            new_friend.salutation = raw_input("\nAre they Mr. or Ms.? : ")
 
-            new_friend['name'] = new_friend['salutation']+ " " + new_friend['name']
-            new_friend['age'] = raw_input("Age : ")
-            new_friend['age'] = int(new_friend['age'])
+            new_friend.name = new_friend.salutation+ " " + new_friend.name
+            new_friend.age = raw_input("Age : ")
+            new_friend.age = int(new_friend.age)
             for e in range(1,3):
-                    if new_friend['age'] > 12 and new_friend['age'] < 30:
+                    if new_friend.age > 12 and new_friend.age < 30:
                         print "Valid Age\n"
 
-                        new_friend['rating'] = raw_input("Spy rating?")
-                        new_friend['rating'] = float(new_friend['rating'])
+                        new_friend.rating = raw_input("Spy rating?")
+                        new_friend.rating = float(new_friend.rating)
                         for e in (1,3):
-                            if new_friend['rating'] >2.5 and new_friend['rating'] <=5:
+                            if new_friend.rating > 2.5 and new_friend.rating <=5:
                                 print "Valid rating\n"
                                 friends.append(new_friend)
                                 print '\nF R I E N D  A D D E D!\n'
                                 break
-                            elif new_friend['rating'] >= 0 and new_friend['rating'] <= 2.5:
+                            elif new_friend.rating >= 0 and new_friend.rating <= 2.5:
                                  print "Too Dumb!"
                                  break
                             else:
                                 print "Plese Enter correct credentials"
 
                         break
-                    elif new_friend['age'] <=12:
+                    elif new_friend.age <=12:
                         print "\nToo young"
                         break
-                    elif new_friend['age'] >=30:
+                    elif new_friend.age >=30:
                         print "Too old"
                         break
                     else:
@@ -129,13 +127,77 @@ def add_friend():
 
 
 
+def select_a_friend():
+    item_number = 0
+
+    for friend in friends:
+        print '%d. %s aged %d with rating %.2f is online' % (item_number +1, friend.name,friend.age,friend.rating)
+        item_number = item_number + 1
+
+    friend_choice = raw_input("Choose from your friends")
+
+    friend_choice_position = int(friend_choice) - 1
+
+    return friend_choice_position
+
+
+
+def send_message():
+
+    friend_choice = select_a_friend()
+
+    original_image = raw_input("What is the name of the image?")
+    output_path = "C:/Users/vinay/Desktop/secret/output.jpg"
+    text = raw_input("What do you want to say? ")
+    Steganography.encode(original_image, output_path, text)
+
+    new_chat = ChatMessage(text,True)
+
+    friends[friend_choice].chats.append(new_chat)
+
+    print "Your secret message image is ready!"
+
+
+def read_message():
+
+    sender = select_a_friend()
+
+    output_path = raw_input("What is the name of the file?")
+
+    secret_text = Steganography.decode(output_path)
+    print "Your secret message is" + secret_text
+
+    new_chat = {
+        "message": secret_text,
+        "time": datetime.now(),
+        "sent_by_me": False
+    }
+
+    friends[sender].chats.append(new_chat)
+
+    print "Your secret message has been saved!"
+
+
+def read_chat_history():
+
+    read_for = select_a_friend()
+
+    print '\n6'
+
+    for chat in friends[read_for].chats:
+        if chat.sent_by_me:
+            print '[%s] %s: %s' % (chat.time.strftime("%d %B %Y"), 'You said:', chat.message)
+        else:
+            print '[%s] %s said: %s' % (chat.time.strftime("%d %B %Y"), friends[read_for].name, chat.message)
+
+
 
 
 #This function takes values from spy_details.py. It will be used to intialize processes.
-def start_chat(spy_name, spy_age, spy_rating):
+def start_chat(spy):
     current_status_message = None
 
-    print "\nWelcome %s %s ! Good to see you again :)\n"%(spy['salutation'],spy['name'])
+    print "\nWelcome %s %s ! Good to see you again :)\n"%(spy.salutation,spy.name)
     #Just to make the output look more interative this function is used to delay the print statements
     sys.stdout.flush()
     sleep(.3)
@@ -163,6 +225,23 @@ def start_chat(spy_name, spy_age, spy_rating):
                 number_of_friends = add_friend()
                 print 'You have %d friends' % (number_of_friends)
 
+            elif menu_choice == 3:
+
+                send_message()
+
+            elif menu_choice == 4:
+
+                read_message()
+
+            elif menu_choice == 5:
+
+                read_chat_history()
+
+            elif menu_choice == 6:
+
+                print "Bye Bye!"
+                break
+
             else:
 
                 print "Please select a valid option"
@@ -171,61 +250,61 @@ def start_chat(spy_name, spy_age, spy_rating):
 #This loop is to re ask the user ..in case he/she enters the wrong credentials
 for e in range (1,3):
 
-    question = raw_input( "Do you want to continue as %s %s (Y/N)\n"%(spy['salutation'], spy['name']))
+    question = raw_input( "Do you want to continue as %s %s (Y/N)\n"%(spy.salutation, spy.name))
     question = question.upper()
 
     if question == "Y":
 
-        start_chat(spy['salutation'],spy['name'],spy['age'])
+        start_chat(spy)
         break
 
     elif question == "N":
 
         #This loop is to re ask the user its name just in case he/she doesnot enter the name at first time
         for e in range (1,3):
-
+            spy = Spy("","",0,0,0)
             #details about the spy
-            spy_name = raw_input("What do you want to be called as a spy?\n")
-            if len(spy_name) > 0:
+            spy.name = raw_input("What do you want to be called as a spy?\n")
+            if len(spy.name) > 0:
 
-                        print "Hello " + spy_name
+                        print "Hello " + spy.name
 
-                        spy_salutation = raw_input("\nHow do you want to be saluted as Mr , Miss or plz mention anyhting else !\n")
+                        spy.salutation = raw_input("\nHow do you want to be saluted as Mr , Miss or plz mention anyhting else !\n")
                         # concatinating name and salutation
-                        spy_name = spy_salutation +" "+ spy_name
+                        spy.name = spy.salutation +" "+ spy.name
 
-                        spy_age = raw_input("\nWhat is your age ?\n")
-                        spy_age = int(spy_age)
+                        spy.age = raw_input("\nWhat is your age ?\n")
+                        spy.age = int(spy.age)
 
                         #Authenticating the spy age
-                        if spy_age > 12 and spy_age < 30:
+                        if spy.age > 12 and spy.age < 30:
 
-                            print  "\nOk! " +spy_name+ " aged " + str(spy_age)+ ". Good to have you here :) ."
+                            print  "\nOk! " +spy.name+ " aged " + str(spy.age)+ ". Good to have you here :) ."
                             print "\nHow about you tell something more about yourself"
 
                             #this loop is to reconfirm the spy ratings ..in case user enters wrong credentials
                             for e in range(1,3):
 
-                                spy_rating = raw_input("\nWhat is your spy rating\n")
-                                spy_rating = float(spy_rating)
+                                spy.rating = raw_input("\nWhat is your spy rating\n")
+                                spy.rating = float(spy.rating)
 
                                 # Authenticating the spy rating
-                                if spy_rating >= 4.5 and spy_rating <= 5:
+                                if spy.rating >= 4.5 and spy.rating <= 5:
 
                                         print "\nJhakaas!! ! Congratulations! You are good enough to be a spy\n"
                                         break
 
-                                elif spy_rating >= 3.5 and spy_rating < 4.5:
+                                elif spy.rating >= 3.5 and spy.rating < 4.5:
 
                                         print "\nMast! ! Congratulations! You are good enough to be a spy\n"
                                         break
 
-                                elif spy_rating >= 2.5 and spy_rating < 3.5:
+                                elif spy.rating >= 2.5 and spy.rating < 3.5:
 
                                         print "\nMahnat krni padegi but still ! Congratulations! You are good enough to be a spy"
                                         break
 
-                                elif spy_rating >= 0 and spy_rating < 2.5:
+                                elif spy.rating >= 0 and spy.rating < 2.5:
 
                                         print "\nSorry ! You are not smart enough to continue here."
                                         break
@@ -236,7 +315,7 @@ for e in range (1,3):
 
                         else:
 
-                             print "\nSorry ! " + spy_name + ". You are not good enough to be a spy\n"
+                             print "\nSorry ! " + spy.name + ". You are not good enough to be a spy\n"
 
                         break
 

@@ -39,15 +39,20 @@ def add_status(current_status_message):
             for e in range(1,3):
 
                 if len(new_status_message) > 0:
+
                     STATUS_MESSAGES.append(new_status_message)#Appends the new message to the messages list
                     updated_status_message = new_status_message
                     current_status_message = updated_status_message
                     break
 
                 else:
+
                     print "You can not leave this blank. Please Enter your status."
+
             break # break statements takes us out of the loop
+
         elif default.upper() == "Y":
+
             if len(STATUS_MESSAGES) > 0:
 
                 item_position = 1 #to show the serial number
@@ -67,17 +72,25 @@ def add_status(current_status_message):
                     break
 
                 else:
+
                     print "Enter a valid number"
+
             else:
+
                 print "Sorry ! You do not have any older messages"
                 break
+
         else:
+
             print "You must choose a value from Y or N"
 
 
     if updated_status_message:#Prints the updated status on screen
+
         print '\nYour updated status message is: %s\n' % (updated_status_message)
+
     else:
+
         print '\nYou did not update your status message\n'
 
 
@@ -85,46 +98,59 @@ def add_status(current_status_message):
 
 
 def add_friend():
+
     #this is the object of class Spy which will be stored in friends as a list
     new_friend = Spy('','',0,0.0)
 
     #takes name of the new friend as an input
     new_friend.name = raw_input("Please add your friend's name : ")
+
     for e in range(1,3):
+
         if len(new_friend.name) > 0:
             new_friend.salutation = raw_input("\nAre they Mr. or Ms.? : ")
 
             new_friend.name = new_friend.salutation+ " " + new_friend.name
             new_friend.age = raw_input("Age : ")
             new_friend.age = int(new_friend.age)
+
             for e in range(1,3):
+
                     if new_friend.age > 12 and new_friend.age < 30:
                         print "Valid Age\n"
 
                         new_friend.rating = raw_input("Spy rating?")
                         new_friend.rating = float(new_friend.rating)
+
                         for e in (1,3):
+
                             if new_friend.rating > 2.5 and new_friend.rating <=5:
                                 print "Valid rating\n"
                                 friends.append(new_friend)
                                 print '\nF R I E N D  A D D E D!\n'
                                 break
+
                             elif new_friend.rating >= 0 and new_friend.rating <= 2.5:
                                  print "Too Dumb!"
                                  break
+
                             else:
                                 print "Plese Enter correct credentials"
 
                         break
+
                     elif new_friend.age <=12:
                         print "\nToo young"
                         break
+
                     elif new_friend.age >=30:
                         print "Too old"
                         break
+
                     else:
                         print "Enter right credentials"
             break
+
         else:
             print "You must enter a name to continue."
     return len(friends)
@@ -135,6 +161,7 @@ def select_a_friend():
     item_number = 0
 
     for friend in friends:
+
         print '%d. %s aged %d with rating %.2f is online' % (item_number +1, friend.name,friend.age,friend.rating)
         item_number = item_number + 1
 
